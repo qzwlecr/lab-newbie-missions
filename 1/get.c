@@ -6,7 +6,7 @@
 #include<dirent.h>
 #include<hiredis/hiredis.h>
 
-#define buf_size 1<<15
+#define buf_size 1<<20
 
 redisContext *Connect_text;
 redisReply *reply;
@@ -34,7 +34,6 @@ void Put_into_database(char *Location)
             if(strlen(word)>0)
             {
                 reply=redisCommand(Connect_text,"ZINCRBY %s 1 ""%s""",word,Location);
-                //printf("%s:%s\n",word,reply->str);
                 memset(word,0,sizeof(word));
             }
         }
@@ -43,14 +42,13 @@ void Put_into_database(char *Location)
     if(strlen(word)>0)
     {
         reply=redisCommand(Connect_text,"ZINCRBY %s 1 ""%s""",word,Location);
-        //printf("%s:%s\n",word,reply->str);
         memset(word,0,sizeof(word));
     }
     fclose(fp);
     return;
 }
 
-int List_Files(char *Location)
+void List_Files(char *Location)
 {
     int Location_length=strlen(Location);
     DIR * dir = opendir(Location);
@@ -80,7 +78,7 @@ int List_Files(char *Location)
                 if(strncmp(magic_file(cookie,Location),"text/",5)==0)
                 {
                     Put_into_database(Location);
-                    printf("%d\n",++cnt);
+                    printf("%d Documents searched: %s\n",++cnt,Location);
                 }
                 for(int i=Location_length;i<=Location_length+Son_length;++i)
                     Location[i]='\0';
@@ -90,7 +88,6 @@ int List_Files(char *Location)
                 continue;
     }
     closedir(dir);
-    return 0;
 }
 
 int main(int argc,char **argv)
@@ -113,23 +110,8 @@ int main(int argc,char **argv)
         argv[1][argv_length]='/';
         argv[1][argv_length+1]='\0';
     }
-    int List_error = List_Files(argv[1]);
-    if(List_error)
-        printf("Error code = %d\n!",List_error);
-    else
-        printf("Search completed!\n");
+    List_Files(argv[1]);
+    printf("Search completed!\n");
     redisFree(Connect_text);
     return 0;
 }
-
-
-/*连接数据库
-redisContext *redisConnect(const char *ip, int port);
-发送命令请求
-void *redisCommand(redisContext *c, const char *format, ...);
-void *redisCommandArgv(redisContext *c, int argc, const char **argv, const size_t *argvlen);
-void redisAppendCommand(redisContext *c, const char *format, ...);
-void redisAppendCommandArgv(redisContext *c, int argc, const char **argv, const size_t *argvlen);
-释放资源
-void freeReplyObject(void *reply);
-void redisFree(redisContext *c);*/
