@@ -10,25 +10,25 @@
 
 redisContext *Connect_text;
 redisReply *reply;
-magic_t cookie;
-FILE * fp;
 int cnt=0;  
-void stradd(char* str, char c)
+
+void Str_add(char* str, char c)
 {
-    int n=strlen(str);
-    str[n]=c;
-    str[n+1]='\0';
+    int len=strlen(str);
+    str[len]=c;
+    str[len+1]='\0';
 }
 
 void Put_into_database(char *Location)
 {
+    FILE * fp;
     fp=fopen(Location,"r");
-    char word[buf_size];
+    static char word[buf_size];
     char buf=fgetc(fp);
     while(buf!=EOF)
     {
         if((buf>='a'&&buf<='z')||(buf>='0'&&buf<='9')||buf=='_')
-            stradd(word,buf);
+            Str_add(word,buf);
         else
         {
             if(strlen(word)>0)
@@ -51,15 +51,15 @@ void Put_into_database(char *Location)
 void List_Files(char *Location)
 {
     int Location_length=strlen(Location);
-    DIR * dir = opendir(Location);
+    DIR *dir = opendir(Location);
     struct dirent *son;
-    while((son = readdir(dir)) != NULL)
+    while((son=readdir(dir))!=NULL)
     {
         if(strncmp(son->d_name,".",1)==0)
             continue;
-        if(son->d_type == DT_DIR)
+        if(son->d_type==DT_DIR)
         {
-            int Son_length = strlen(son->d_name);
+            int Son_length=strlen(son->d_name);
             strncpy(Location+Location_length,son->d_name,Son_length);
             Location[Location_length+Son_length]='/';
             Location[Location_length+Son_length+1]='\0';
@@ -68,8 +68,10 @@ void List_Files(char *Location)
                 Location[i]='\0';
         }
         else
-            if(son->d_type == DT_REG)
+        {
+            if(son->d_type==DT_REG)
             {
+                magic_t cookie;
                 int Son_length = strlen(son->d_name);
                 cookie=magic_open(MAGIC_MIME_TYPE);
                 magic_load(cookie,NULL);
@@ -86,6 +88,8 @@ void List_Files(char *Location)
             }
             else
                 continue;
+    
+        }
     }
     closedir(dir);
 }
@@ -97,7 +101,7 @@ int main(int argc,char **argv)
         printf("Not a correct format!\n");
         return 0;
     }
-    Connect_text = redisConnect("127.0.0.1",6379);
+    Connect_text=redisConnect("127.0.0.1",6379);
     if(Connect_text==NULL||Connect_text->err)
     {
         printf("Can't connect to the database!\n");
@@ -114,4 +118,4 @@ int main(int argc,char **argv)
     printf("Search completed!\n");
     redisFree(Connect_text);
     return 0;
-}
+} 

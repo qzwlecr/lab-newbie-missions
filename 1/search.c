@@ -9,6 +9,7 @@
 redisContext *Connect_text;
 redisReply *reply;
 
+
 int main(int argc,char **argv)
 {
     if(argc==1)
