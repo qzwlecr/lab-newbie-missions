@@ -18,6 +18,7 @@ void Str_add(char* str, char c)
     str[len]=c;
     str[len+1]='\0';
 }
+//add char to a string
 
 void Put_into_database(char *Location)
 {
@@ -39,6 +40,7 @@ void Put_into_database(char *Location)
         }
         buf=fgetc(fp);
     }
+    //fgetc chars one by one and get words
     if(strlen(word)>0)
     {
         reply=redisCommand(Connect_text,"ZINCRBY %s 1 ""%s""",word,Location);
@@ -59,6 +61,7 @@ void List_Files(char *Location)
             continue;
         if(son->d_type==DT_DIR)
         {
+            //if the file is a directory
             int Son_length=strlen(son->d_name);
             strncpy(Location+Location_length,son->d_name,Son_length);
             Location[Location_length+Son_length]='/';
@@ -71,12 +74,14 @@ void List_Files(char *Location)
         {
             if(son->d_type==DT_REG)
             {
+                //if the file is a document
                 magic_t cookie;
                 int Son_length = strlen(son->d_name);
                 cookie=magic_open(MAGIC_MIME_TYPE);
                 magic_load(cookie,NULL);
                 strncpy(Location+Location_length,son->d_name,Son_length);
                 Location[Location_length+Son_length]='\0';
+                //check its MIME
                 if(strncmp(magic_file(cookie,Location),"text/",5)==0)
                 {
                     Put_into_database(Location);
@@ -101,6 +106,7 @@ int main(int argc,char **argv)
         printf("Not a correct format!\n");
         return 0;
     }
+    //connect to redis database
     Connect_text=redisConnect("127.0.0.1",6379);
     if(Connect_text==NULL||Connect_text->err)
     {
@@ -114,6 +120,7 @@ int main(int argc,char **argv)
         argv[1][argv_length]='/';
         argv[1][argv_length+1]='\0';
     }
+    //fix format problems
     List_Files(argv[1]);
     printf("Search completed!\n");
     redisFree(Connect_text);
