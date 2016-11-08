@@ -1,7 +1,7 @@
 #UniqueLab Mission 1
 
 ##编译方法：
-    makefile
+    Cmake
 
 ##执行方法
     ./index 绝对路径
@@ -10,6 +10,7 @@
 ##需要环境
     本地redis数据库 127.0.0.1:6379
     gcc 6.2.1
+    libhiredis.so libmagic.so
     
 ##简介：
 
