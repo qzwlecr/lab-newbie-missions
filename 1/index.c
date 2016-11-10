@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<stdlib.h>
 #include<ctype.h>
 #include<string.h>
 #include<magic.h>
@@ -12,39 +13,37 @@ redisContext *Connect_text;
 redisReply *reply;
 int cnt=0;  
 
-void Str_add(char* str, char c)
-{
-    int len=strlen(str);
-    str[len]=c;
-    str[len+1]='\0';
-}
-//add char to a string
-
 void Put_into_database(char *Location)
 {
     FILE * fp;
     fp=fopen(Location,"r");
     static char word[buf_size];
     char buf=fgetc(fp);
+    int length=0;
     while(buf!=EOF)
     {
         if((buf>='a'&&buf<='z')||(buf>='0'&&buf<='9')||buf=='_')
-            Str_add(word,buf);
+        {
+            word[length]=buf;
+            word[length+1]='\0';
+            ++length;
+            //add the new char to the word
+        }
         else
         {
-            if(strlen(word)>0)
+            if(length>0)
             {
                 reply=redisCommand(Connect_text,"ZINCRBY %s 1 ""%s""",word,Location);
-                memset(word,0,sizeof(word));
+                length=0;
             }
         }
         buf=fgetc(fp);
     }
     //fgetc chars one by one and get words
-    if(strlen(word)>0)
+    if(length>0)
     {
         reply=redisCommand(Connect_text,"ZINCRBY %s 1 ""%s""",word,Location);
-        memset(word,0,sizeof(word));
+        length=0;
     }
     fclose(fp);
     return;
@@ -54,6 +53,11 @@ void List_Files(char *Location)
 {
     int Location_length=strlen(Location);
     DIR *dir = opendir(Location);
+    if(dir==NULL)
+    {
+        printf("file error!\n");
+        exit(0);
+    }
     struct dirent *son;
     while((son=readdir(dir))!=NULL)
     {
@@ -85,7 +89,7 @@ void List_Files(char *Location)
                 if(strncmp(magic_file(cookie,Location),"text/",5)==0)
                 {
                     Put_into_database(Location);
-                    printf("%d Documents searched: %s\n",++cnt,Location);
+                    printf("%d Documents indexed: %s\n",++cnt,Location);
                 }
                 for(int i=Location_length;i<=Location_length+Son_length;++i)
                     Location[i]='\0';
@@ -93,7 +97,6 @@ void List_Files(char *Location)
             }
             else
                 continue;
-    
         }
     }
     closedir(dir);
@@ -122,7 +125,7 @@ int main(int argc,char **argv)
     }
     //fix format problems
     List_Files(argv[1]);
-    printf("Search completed!\n");
+    printf("Index completed!\n");
     redisFree(Connect_text);
     return 0;
 } 
