@@ -97,9 +97,9 @@ void vector_insert(Vector* vec,int where,VECTOR_TYPE value)
         {
             vector_new_capacity(vec,vec->size*2);
             memmove(vec->data+where+1,vec->data+where,(vec->size-where)*sizeof(VECTOR_TYPE));
-            ++vec->size;
-            vec->data[where]=value;
         }
+        ++vec->size;
+        vec->data[where]=value;
     }
     return;
 }

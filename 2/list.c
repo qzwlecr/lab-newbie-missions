@@ -7,7 +7,6 @@ typedef struct Node
     struct Node *last;
 }Node;
 
-
 typedef struct List
 {
     Node *head;
@@ -171,4 +170,7 @@ bool ListIterator_not_equal(ListIterator iter_a, ListIterator iter_b)
     return (iter_a.data->data!=iter_b.data->data);
 }
 
-
+LIST_TYPE* list_get_data_ptr(ListIterator* iter)
+{
+    return &(iter->data->data);
+}
