@@ -50,6 +50,7 @@ void vector_new_capacity(Vector* vec,int new_cap)
     memcpy(temp,vec->data,sizeof(VECTOR_TYPE)*vec->size);
     free(vec->data);
     vec->capacity=new_cap;
+    vec->data=temp;
     return;
 }
 
