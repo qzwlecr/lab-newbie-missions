@@ -93,6 +93,7 @@ void list_insert(List* lis, ListIterator where, LIST_TYPE value)
     node->next=NULL;
     node->last=NULL;
     list_node_link_to_list(lis,node,where.data);
+    ++lis->size;
     return;
 }
 
