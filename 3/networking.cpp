@@ -54,17 +54,18 @@ void NetworkingListenAndAccept(redisServer *s)
             }
         }
         FD_SET(connected,&s->all_set);
-        if(--nready<=0)
+        if(--s->ready<=0)
             return;
-        for(int i=0;i<=max_ready)
+        for(int i=0;i<=s->max_ready;++i)
         {
-            connected=clients[i];
+            connected=s->clients[i];
             if(connected<0)
                 continue;
-            if(FD_ISSET(connected,&temp);
-                NetworkingRead(s->connected);
+            if(FD_ISSET(connected,&temp))
+                NetworkingRead(connected);
         }
     }
+    return;
 }
 
 
