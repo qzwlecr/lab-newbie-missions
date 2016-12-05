@@ -1,3 +1,4 @@
+#pragma once
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -11,8 +12,6 @@
 #include <unordered_map>
 
 using namespace std;
-
-#define _TYPES_H
 
 //redisContext and redisReply
 const int REDIS_REPLY_INTEGER=1;
@@ -57,5 +56,4 @@ typedef struct redisServer
     int clients[CLIENTS_MAX_NUMBER];
     redisDatabase data;
 }redisServer;
-
 

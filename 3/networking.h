@@ -1,6 +1,6 @@
-#ifndef _TYPES_H
+#pragma once
 #include "types.h"
-#endif
+
 redisServer* NetworkingInit();
 void NetworkingRead(int fd,redisServer *s);
 void NetworkingListenAndAccept(redisServer *s);

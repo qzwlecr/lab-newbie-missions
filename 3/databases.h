@@ -1,6 +1,6 @@
-#ifndef _TYPES_H
+#pragma once
 #include "types.h"
-#endif
+
 redisReply CommandGet(redisDatabase *d,string s);
 redisReply CommandDel(redisDatabase *d,string s);
 redisReply CommandExists(redisDatabase *d,string s);
