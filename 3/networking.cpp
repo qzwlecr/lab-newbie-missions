@@ -1,5 +1,5 @@
 #include "networking.h"
-
+#include "databases.h"
 redisServer* NetworkingInit()
 {
     redisServer *s;
@@ -62,10 +62,29 @@ void NetworkingListenAndAccept(redisServer *s)
             if(connected<0)
                 continue;
             if(FD_ISSET(connected,&temp))
-                NetworkingRead(connected);
+                NetworkingRead(connected,s);
         }
     }
     return;
 }
 
-
+void NetworkingRead(int fd,redisServer *s)
+{
+    static char ibuf[1024*16];
+    int size;
+    if((size=recv(fd,ibuf,sizeof(ibuf),0))==-1)
+    {
+        return;
+    }
+    static char word[1024];
+    sscanf(ibuf,"%s",word);
+    if(word[0]=='s'||word[0]=='S')
+    {
+        sscanf(ibuf,"%s",word);
+        string s1=word;
+        sscanf(ibuf,"%s",word);
+        string s2=word;
+        CommandSet(&s->data,s1,s2);
+    }
+    return;
+}

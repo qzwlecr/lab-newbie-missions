@@ -31,15 +31,64 @@ redisContext *redisConnect(const char *ip,int port)
     }
     return c;
 }
-static redisReply *redisFormatCommand()
+
+redisReply *redisCommand(redisContext *c,const char *format,...)
 {
-
+    redisReply *r;
+    r=(redisReply*)malloc(sizeof(redisReply));
+    if(c->err)
+    {
+        r->type=REDIS_REPLY_ERROR;
+        return r;
+    }
+    int size=OBUF_INIT_SIZE;
+    c->obuf=(char*)malloc(size*sizeof(char));
+    if(c->obuf==NULL)
+    {
+        c->err=1;
+        strcpy(c->errstr,"Can't malloc!");
+        r->type=REDIS_REPLY_ERROR;
+        return r;
+    }
+    va_list arg_ptr;
+    while(1)
+    {
+        va_start(arg_ptr,format);
+        int already_print=vsnprintf(c->obuf,size,format,arg_ptr);
+        if(already_print<=-1&&already_print>=size)
+        {
+            size<<=1;
+            c->obuf=(char*)malloc(size*sizeof(char));
+            if(c->obuf==NULL)
+            {
+                c->err=1;
+                strcpy(c->errstr,"Can't malloc!");
+                r->type=REDIS_REPLY_ERROR;
+                return r;
+            }
+            continue;
+        }
+        else
+            break;
+    }
+    va_end(arg_ptr);
+    if(send(c->fd,c->obuf,strlen(c->obuf),MSG_DONTWAIT)==-1)
+    {
+        c->err=1;
+        strcpy(c->errstr,"Can't send message!");
+        r->type=REDIS_REPLY_ERROR;
+        return r;
+    }
+    free(c->obuf);
+    if(recv(c->fd,r,sizeof(redisReply),MSG_DONTWAIT)==-1)
+    {
+        c->err=1;
+        strcpy(c->errstr,"Can't recv message");
+        r->type=REDIS_REPLY_ERROR;
+        return r;
+    }
+    return r;
 }
-redisReply *redisCommand()
-{
-
-}
-
 
 void freeReplyObject(redisReply *reply)
 {
