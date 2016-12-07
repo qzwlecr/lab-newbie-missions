@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdlib>
+#include <iostream>
+#include <sstream>
 #include <cstring>
 #include <string>
 #include <malloc.h>
@@ -33,13 +35,13 @@ typedef struct redisReply
 {
     int type;
     int integer;
-    char *str;
+    char str[1024];
 }redisReply;
 
 //redisDatabase
 typedef struct redisDatabase
 {
-    unordered_map<string,string> data;
+    unordered_map<string,string>* data;
 }redisDatabase;
 
 //redisServer

@@ -1,4 +1,5 @@
 #include "hiredis.h"
+#include <errno.h>
 
 redisContext *redisConnect(const char *ip,int port)
 {
@@ -9,8 +10,7 @@ redisContext *redisConnect(const char *ip,int port)
     c->err=0;
     c->errstr[0]='\0';
     c->obuf=NULL;
-    c->fd=socket(PF_INET,SOCK_STREAM,0);
-    if((c->fd=socket(PF_INET,SOCK_STREAM,0)<0))
+    if((c->fd=socket(PF_INET,SOCK_STREAM,0))<0)
     {
         c->err=1;
         strcpy(c->errstr,"Can't get socket!");
@@ -26,7 +26,7 @@ redisContext *redisConnect(const char *ip,int port)
         close(c->fd);
         c->fd=0;
         c->err=1;
-        strcpy(c->errstr,"Can't establish connection!");
+        strcpy(c->errstr,strerror(errno));
         return c;
     }
     return c;
@@ -46,7 +46,7 @@ redisReply *redisCommand(redisContext *c,const char *format,...)
     if(c->obuf==NULL)
     {
         c->err=1;
-        strcpy(c->errstr,"Can't malloc!");
+        strcpy(c->errstr,strerror(errno));
         r->type=REDIS_REPLY_ERROR;
         return r;
     }
@@ -62,7 +62,7 @@ redisReply *redisCommand(redisContext *c,const char *format,...)
             if(c->obuf==NULL)
             {
                 c->err=1;
-                strcpy(c->errstr,"Can't malloc!");
+                strcpy(c->errstr,strerror(errno));
                 r->type=REDIS_REPLY_ERROR;
                 return r;
             }
@@ -72,18 +72,18 @@ redisReply *redisCommand(redisContext *c,const char *format,...)
             break;
     }
     va_end(arg_ptr);
-    if(send(c->fd,c->obuf,strlen(c->obuf),MSG_DONTWAIT)==-1)
+    if(send(c->fd,c->obuf,strlen(c->obuf),0)==-1)
     {
         c->err=1;
-        strcpy(c->errstr,"Can't send message!");
+        strcpy(c->errstr,strerror(errno));
         r->type=REDIS_REPLY_ERROR;
         return r;
     }
     free(c->obuf);
-    if(recv(c->fd,r,sizeof(redisReply),MSG_DONTWAIT)==-1)
+    if(recv(c->fd,r,sizeof(redisReply),0)==-1)
     {
         c->err=1;
-        strcpy(c->errstr,"Can't recv message");
+        strcpy(c->errstr,strerror(errno));
         r->type=REDIS_REPLY_ERROR;
         return r;
     }
@@ -92,6 +92,8 @@ redisReply *redisCommand(redisContext *c,const char *format,...)
 
 void freeReplyObject(redisReply *reply)
 {
+    if(reply->str!=NULL)
+        free(reply->str);
     free(reply);
 }
 
