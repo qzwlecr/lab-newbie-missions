@@ -14,6 +14,8 @@ int main()
         return 1;
     }
     r=redisCommand(c,"set a 233");
+    r=redisCommand(c,"set b qwq");
+    r=redisCommand(c,"exist a b");
     if(c->err)
     {
         cout<<c->errstr<<endl;
@@ -24,18 +26,6 @@ int main()
         cout<<strerror(errno)<<endl;
         return 1;
     }
-    cout<<r->str<<endl;
-    r=redisCommand(c,"get a");
-    if(c->err)
-    {
-        cout<<c->errstr<<endl;
-        return 1;
-    }
-    if(r->type==REDIS_REPLY_ERROR)
-    {
-        cout<<strerror(errno)<<endl;
-        return 1;
-    }
-    cout<<r->str<<endl;
+    cout<<r->integer<<endl;
     return 0;
 }

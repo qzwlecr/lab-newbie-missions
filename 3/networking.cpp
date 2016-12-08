@@ -50,7 +50,7 @@ void NetworkingListenAndAccept(redisServer *s)
         connected=accept(s->listen_fd,(struct sockaddr*)&peer_addr,&length);
         if(connected==-1)
             return;
-        cout<<"accepted"<<endl;
+        //cout<<"accepted"<<endl;
         for(int i=0;i<CLIENTS_MAX_NUMBER;++i)
         {
             if(s->clients[i]<0)
@@ -94,13 +94,11 @@ void NetworkingRead(int fd,int loc,redisServer *s)
     }
     else if(ret==0)
     {
-        cout<<ibuf<<endl;
         close(fd);
         s->clients[loc]=-1;
         FD_CLR(fd,&s->all_set);
     }
     stringstream ss;
-    cout<<ibuf<<endl;
     ss<<ibuf;
     string word;
     ss>>word;
@@ -115,18 +113,29 @@ void NetworkingRead(int fd,int loc,redisServer *s)
     else if(word[0]=='d'||word[0]=='D')
     {
     //    printf("2333\n");
+        vector<string> arg;
         string s1;
         ss>>s1;
+        arg.push_back(s1);
+        while(ss>>s1)
+            arg.push_back(s1);
+
     //    cout<<s1<<endl;
-        r=CommandDel(&s->data,s1);
+        r=CommandDel(&s->data,arg);
     }
-    else if(word[0]=='e'||word[0]=='E')
+    else if((word[0]=='e'||word[0]=='E')&&(word[2]=='i'||word[2]=='I'))
     {
     //    printf("23333\n");
+        vector<string> arg;
         string s1;
         ss>>s1;
+        arg.push_back(s1);
+        while(ss>>s1)
+        {
+            arg.push_back(s1);
+        }
     //    cout<<s1<<endl;
-        r=CommandExists(&s->data,s1);
+        r=CommandExists(&s->data,arg);
     }
     else if(word[0]=='g'||word[0]=='G')
     {

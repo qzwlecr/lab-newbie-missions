@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstring>
 #include <string>
+#include <vector>
 #include <malloc.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -21,6 +22,7 @@ const int REDIS_REPLY_INTEGER=1;
 const int REDIS_REPLY_STRING=2;
 const int REDIS_REPLY_NIL=3;
 const int REDIS_REPLY_ERROR=4;
+const int REDIS_REPLY_ARRAY=5;
 const int OBUF_INIT_SIZE=1024;
 const int REPLY_INIT_SIZE=1024;
 
@@ -38,6 +40,7 @@ typedef struct redisReply
     int type;
     int integer;
     char str[REPLY_INIT_SIZE];
+    struct redisReply *array;
 }redisReply;
 
 //redisDatabase
@@ -56,7 +59,6 @@ typedef struct redisServer
     int max_fd;
     fd_set all_set;
     int ready;
-    int max_ready;
     int clients[CLIENTS_MAX_NUMBER];
     redisDatabase data;
 }redisServer;
