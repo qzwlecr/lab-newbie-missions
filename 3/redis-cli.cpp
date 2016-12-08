@@ -25,5 +25,17 @@ int main()
         return 1;
     }
     cout<<r->str<<endl;
+    r=redisCommand(c,"get a");
+    if(c->err)
+    {
+        cout<<c->errstr<<endl;
+        return 1;
+    }
+    if(r->type==REDIS_REPLY_ERROR)
+    {
+        cout<<strerror(errno)<<endl;
+        return 1;
+    }
+    cout<<r->str<<endl;
     return 0;
 }

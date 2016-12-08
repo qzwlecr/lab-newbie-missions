@@ -22,5 +22,5 @@ databases.o:databases.cpp
 	g++ -c databases.cpp
 
 clean:
-	rm *.o server
+	rm *.o server client
 

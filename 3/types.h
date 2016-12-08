@@ -7,6 +7,7 @@
 #include <malloc.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/types.h>
@@ -20,7 +21,8 @@ const int REDIS_REPLY_INTEGER=1;
 const int REDIS_REPLY_STRING=2;
 const int REDIS_REPLY_NIL=3;
 const int REDIS_REPLY_ERROR=4;
-const int OBUF_INIT_SIZE=1<<8;
+const int OBUF_INIT_SIZE=1024;
+const int REPLY_INIT_SIZE=1024;
 
 typedef struct redisContext
 {
@@ -28,14 +30,14 @@ typedef struct redisContext
     char errstr[128];
     int fd;
     int flags;
-    char *obuf;
+    char obuf[OBUF_INIT_SIZE];
 }redisContext;
 
 typedef struct redisReply
 {
     int type;
     int integer;
-    char str[1024];
+    char str[REPLY_INIT_SIZE];
 }redisReply;
 
 //redisDatabase

@@ -27,7 +27,6 @@ redisServer* NetworkingInit()
     FD_ZERO(&s->all_set);
     FD_SET(s->listen_fd,&s->all_set);
     s->max_fd=s->listen_fd;
-    s->max_ready=0;
     memset(s->clients,-1,sizeof(s->clients));
     s->data.data=new unordered_map<string,string>();
     return s;
@@ -51,15 +50,12 @@ void NetworkingListenAndAccept(redisServer *s)
         connected=accept(s->listen_fd,(struct sockaddr*)&peer_addr,&length);
         if(connected==-1)
             return;
-    //    cout<<"accepted"<<endl;
+        cout<<"accepted"<<endl;
         for(int i=0;i<CLIENTS_MAX_NUMBER;++i)
         {
             if(s->clients[i]<0)
             {
                 s->clients[i]=connected;
-    //            cout<<i<<endl;
-                if(i>s->max_ready)
-                    s->max_ready=i;
                 break;
             }
         }
@@ -69,7 +65,7 @@ void NetworkingListenAndAccept(redisServer *s)
         if(--s->ready<=0)
             return;
     }
-    for(int i=0;i<=s->max_ready;++i)
+    for(int i=0;i<CLIENTS_MAX_NUMBER;++i)
     {
         connected=s->clients[i];
         if(connected<0)
@@ -77,26 +73,34 @@ void NetworkingListenAndAccept(redisServer *s)
     //    cout<<connected<<" "<<endl;
         if(FD_ISSET(connected,&temp))
         {
-            NetworkingRead(connected,s);
-            close(connected);
-            s->clients[i]=-1;
-            FD_CLR(connected,&s->all_set);
+            NetworkingRead(connected,i,s);
+    //        close(connected);
+    //        s->clients[i]=-1;
+    //        FD_CLR(connected,&s->all_set);
         }
     }
     return;
 }
 
-void NetworkingRead(int fd,redisServer *s)
+void NetworkingRead(int fd,int loc,redisServer *s)
 {
-    static char ibuf[1024*16];
-    int size;
+    static char ibuf[1024];
     redisReply *r;
     r=(redisReply*)malloc(sizeof(redisReply));
-    if((size=recv(fd,ibuf,sizeof(ibuf),0))==-1)
+    int ret=recv(fd,ibuf,sizeof(ibuf),0);
+    if(ret==-1)
     {
         return;
     }
+    else if(ret==0)
+    {
+        cout<<ibuf<<endl;
+        close(fd);
+        s->clients[loc]=-1;
+        FD_CLR(fd,&s->all_set);
+    }
     stringstream ss;
+    cout<<ibuf<<endl;
     ss<<ibuf;
     string word;
     ss>>word;
@@ -129,9 +133,9 @@ void NetworkingRead(int fd,redisServer *s)
     //    printf("233333\n");
         string s1;
         ss>>s1;
-    //    cout<<s1<<endl;
         r=CommandGet(&s->data,s1);
     }
+    memset(ibuf,0,sizeof(ibuf));
     send(fd,r,sizeof(redisReply),0);
     return;
 }

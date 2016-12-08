@@ -5,6 +5,7 @@ redisReply *CommandGet(redisDatabase *d,string s)
     redisReply *r;
     r=(redisReply*)malloc(sizeof(redisReply));
     unordered_map<string,string>::iterator iter=d->data->find(s);
+    cout<<"get!!!"<<endl;
     if(iter==d->data->end())
     {
         r->type=REDIS_REPLY_NIL;
@@ -17,6 +18,7 @@ redisReply *CommandGet(redisDatabase *d,string s)
 
 redisReply *CommandExists(redisDatabase *d,string s)
 {
+    cout<<"exists!!!"<<endl;
     redisReply *r;
     r=(redisReply*)malloc(sizeof(redisReply));
     r->type=REDIS_REPLY_INTEGER;
@@ -34,6 +36,7 @@ redisReply *CommandExists(redisDatabase *d,string s)
 
 redisReply *CommandSet(redisDatabase *d,string s1,string s2)
 {
+    cout<<"set!!!"<<endl;
     redisReply *r;
     r=(redisReply*)malloc(sizeof(redisReply));
     r->type=REDIS_REPLY_STRING;
@@ -44,6 +47,7 @@ redisReply *CommandSet(redisDatabase *d,string s1,string s2)
 
 redisReply *CommandDel(redisDatabase *d,string s)
 {
+    cout<<"del!!!"<<endl;
     redisReply *r;
     r=(redisReply*)malloc(sizeof(redisReply));
     r->type=REDIS_REPLY_INTEGER;
