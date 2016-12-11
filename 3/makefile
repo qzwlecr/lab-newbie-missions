@@ -1,10 +1,10 @@
-main:server client
+main:server libhiredis.a
 
 server:redis.o networking.o databases.o
 	g++ -o server redis.o networking.o databases.o
 
-client:redis-cli.o hiredis.o sds.o fakeredis.o
-	g++ -o client redis-cli.o hiredis.o sds.o fakeredis.o
+libhiredis.a: hiredis.o sds.o fakeredis.o
+	ar rcs libhiredis.a  hiredis.o sds.o fakeredis.o
 
 sds.o:sds.cpp sds.h
 	g++ -c sds.cpp
@@ -12,11 +12,8 @@ sds.o:sds.cpp sds.h
 fakeredis.o:fakeredis.cpp fakeredis.h
 	g++ -c fakeredis.cpp
 
-hiredis.o:hiredis.cpp hiredis.h
+hiredis.o:hiredis.cpp
 	g++ -c hiredis.cpp
-
-redis-cli.o:redis-cli.cpp
-	g++ -c redis-cli.cpp
 
 redis.o:redis.cpp
 	g++ -c redis.cpp
@@ -28,5 +25,5 @@ databases.o:databases.cpp
 	g++ -c databases.cpp
 
 clean:
-	rm *.o server client
+	rm *.o *.a server
 
