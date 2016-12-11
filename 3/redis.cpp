@@ -1,11 +1,11 @@
 #include "networking.h"
 #include "databases.h"
-#include "types.h"
+#include "type.h"
 
 int main()
 {
     redisServer *s;
-    s=NetworkingInit();
+    s=redisServerInit();
     if(s==NULL)
     {
         printf("networking init error:%s\n",strerror(errno));

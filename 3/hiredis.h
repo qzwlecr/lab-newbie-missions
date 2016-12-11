@@ -1,6 +1,7 @@
 #pragma once
-#include "types.h"
-
+#include "type.h"
+#include "fakeredis.h"
+#include "sds.h"
 redisContext *redisConnect(const char *ip,int port);
 redisReply *redisCommand(redisContext *c,const char *format,...);
 void freeReplyObject(void *reply);

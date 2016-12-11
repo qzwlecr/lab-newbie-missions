@@ -10,8 +10,11 @@ redisReply *CommandGet(redisDatabase *d,string s)
         r->type=REDIS_REPLY_NIL;
         return r;
     }
+    //cout<<(*iter).second<<endl;;
     r->type=REDIS_REPLY_STRING;
-    strcpy(r->str,(*iter).second.c_str());
+    r->str=(char*)malloc(sizeof((*iter).second.data()));
+    r->len=(*iter).second.size();
+    memcpy(r->str,(*iter).second.data(),(*iter).second.size());
     return r;
 }
 
@@ -37,7 +40,9 @@ redisReply *CommandSet(redisDatabase *d,string s1,string s2)
     r=(redisReply*)malloc(sizeof(redisReply));
     r->type=REDIS_REPLY_STRING;
     (*d->data)[s1]=s2;
-    strcpy(r->str,"OK");
+    r->str=(char*)malloc(sizeof("OK"));
+    memcpy(r->str,"OK",sizeof("OK"));
+    r->len=2;
     return r;
 }
 
@@ -51,3 +56,5 @@ redisReply *CommandDel(redisDatabase *d,vector<string> arg)
         r->integer+=d->data->erase(arg[cnt]);
     return r;
 }
+
+
