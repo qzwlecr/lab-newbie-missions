@@ -1,6 +1,6 @@
-#UniqueLab Mission 2
+# UniqueLab Mission 2
 
-##介绍：
+## 介绍：
 
 1. array
     + init ptr\_at empty size **O(1)**
@@ -30,17 +30,17 @@
     + clear **O(n)**
     + erase insert **O(xuanxue)**
 
-##文件说明:
+## 文件说明:
 
     *.h *的操作接口头文件
     *.c *的具体实现
 
-##简介：
+## 简介：
 
 本次任务要求实现用C语言实现C++ STL库的部分功能，为下一期任务造好轮子。
 本期任务参考资料为 http://www.cplusplus.com/reference/stl
 
-##要求：
+## 要求：
 
 1. 实现以下容器
     1. vector, stack, queue, \(array,deque可选\)
